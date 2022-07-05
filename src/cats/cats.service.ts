@@ -4,11 +4,30 @@ import {
 } from '@nestjs/common';
 import { CatRequestDto } from './dto/cats.request.dto';
 import * as bcrypt from 'bcrypt';
-import {CatsRepository} from "./cats.repository"; // 암호화 관련 패키지
+import {CatsRepository} from "./cats.repository";
+import {Cat} from "./cats.schema"; // 암호화 관련 패키지
 
 @Injectable()
 export class CatsService {
   constructor(private readonly catsRepository: CatsRepository) {}
+
+  async getAllCat() {
+    const allCat = await this. catsRepository.findAll();
+    const readOnlyCats = allCat.map((data) => data.readOnlyData);
+    return readOnlyCats;
+
+  }
+
+  async uploadImg(cat: Cat, files: Express.Multer.File[]) {
+    const fileName = `cats/${files[0].filename}`;
+    console.log(fileName);
+    const newCat = await this.catsRepository.findByIdAndUpdateImg(
+        cat.id,
+        fileName,
+    );
+    console.log(newCat);
+    return newCat;
+  }
 
   async signUp(body: CatRequestDto) {
     const { email, name, password } = body;

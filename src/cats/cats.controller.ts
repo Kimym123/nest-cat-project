@@ -19,6 +19,8 @@ import { LoginRequestDto } from '../auth/dto/login.request.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { CurrentUser } from '../common/decorators/user.decorator';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from '../common/utils/multer.options';
+import { Cat } from './cats.schema';
 
 @Controller('cats')
 @UseInterceptors(SuccessInterceptor)
@@ -65,10 +67,21 @@ export class CatsController {
   // }
 
   @ApiOperation({ summary: '고양이 이미지 업로드' })
-  @UseInterceptors(FilesInterceptor('image'))
+  @UseInterceptors(FilesInterceptor('image', 10, multerOptions('cats')))
+  @UseGuards(JwtAuthGuard) //
   @Post('upload')
-  uploadCatImg(@UploadedFiles() files: Array<Express.Multer.File>) {
+  uploadCatImg(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @CurrentUser() cat: Cat,
+  ) {
+    // @Curent
     console.log(files);
-    return 'uploadImg';
+    return this.catsService.uploadImg(cat, files);
+  }
+
+  @ApiOperation({summary: '모든 고양이 가져오기'})
+  @Get('all')
+  getAllCat() {
+    return this.catsService.getAllCat();
   }
 }

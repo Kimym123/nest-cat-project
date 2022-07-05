@@ -8,12 +8,10 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import * as mongoose from 'mongoose';
 import {MulterModule} from "@nestjs/platform-express";
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
-      MulterModule.register({
-        dest: './upload',
-      }),
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGODB_URI, {
       useNewUrlParser: true,
@@ -21,6 +19,7 @@ import {MulterModule} from "@nestjs/platform-express";
     }),
     CatsModule,
     AuthModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
