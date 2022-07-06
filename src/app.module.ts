@@ -7,12 +7,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import * as mongoose from 'mongoose';
-import {MulterModule} from "@nestjs/platform-express";
 import { CommentsModule } from './comments/comments.module';
+import { AwsService } from './aws.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -20,15 +20,16 @@ import { CommentsModule } from './comments/comments.module';
     CatsModule,
     AuthModule,
     CommentsModule,
+    ConfigModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AwsService],
 })
 export class AppModule implements NestModule {
   private readonly isDev: boolean = process.env.MODE === 'dev' ? true : false;
 
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
-    mongoose.set('debug', this.isDev)
+    mongoose.set('debug', this.isDev);
   }
 }
